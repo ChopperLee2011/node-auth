@@ -1,6 +1,6 @@
 const cradle = require('cradle');
 
-var couchdb = function (host, port) {
+var couchdb  = (host, port) => {
     this.connection = new ( cradle.Connection)(host, port, {
         cache: true,
         raw: false
