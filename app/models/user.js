@@ -1,15 +1,13 @@
 // load the things we need
-const cradle = require('cradle'),
+var cradle = require('cradle'),
     modella = require('modella'),
     validators = require('modella-validators'),
     bcrypt = require('bcrypt-nodejs');
-//couchdb = require('../couchdb');
-//var couchdb = require('../couchdb');
+var Couchdb = require('../couchdb');
+var routes = require('../routes');
 
 var User = modella('User');
-
 User.use(validators);
-
 
 User.attr('_id')
     .attr('username')
@@ -24,18 +22,31 @@ User.attr('_id')
  * _id and _rev are for CouchDB.
  */
 
-//User.attr('_id')
-//    .attr('_rev');
+User.attr('_id')
+    .attr('_rev');
+//console.log('User', typeof User);
 
-User.save = function (user) {
-    var db = new ( cradle.Connection)('http://127.0.0.1', 5984, {
-        cache: true,
-        raw: false
-    }).database('auth');
-    db.save(user.email, user, function (err, res) {
-        // Handle response
+User.on('saving', function (user, done) {
+    //var db = new ( cradle.Connection)('http://127.0.0.1', 5984, {
+    //    auth: { username: 'anna', password: 'secret' },
+    //    cache: true,
+    //    raw: false
+    //}).database('auth');
+
+    //db.save('_design/user', {
+    //    views: {
+    //        byUsername: {
+    //            map: 'function (doc) { if (doc.email ) { emit(doc.email, null) } }'
+    //        }
+    //    }
+    //});
+    let db = new Couchdb('http://127.0.0.1', 5984, 'auth');
+    db.save(user.attrs, function (err, res) {
+        //    // Handle response
+        if (err) done(err);
+        done(res);
     });
-};
+});
 // define the schema for our user model
 //var userSchema = mongoose.Schema({
 //

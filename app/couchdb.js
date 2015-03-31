@@ -1,15 +1,16 @@
-const cradle = require('cradle');
+var cradle = require('cradle');
 
-var couchdb  = (host, port) => {
-    this.connection = new ( cradle.Connection)(host, port, {
+var couchdb = function (host, port , dbname) {
+    this.db =  new ( cradle.Connection)(host, port, {
         cache: true,
         raw: false
-    });
+    }).database(dbname);
 
-    this.db = this.connection.database('auth');
+    return this.db;
 };
 
-couchdb.prototype.findAll = (cb) => {
+
+couchdb.prototype.findAll = function (cb) {
     this.db.view('auth/all', (err, result) => {
         if (err) {
             cb(err);
@@ -21,7 +22,7 @@ couchdb.prototype.findAll = (cb) => {
     });
 };
 
-couchdb.prototype.findByid = (id, cb) => {
+couchdb.prototype.findByid = function (id, cb) {
     this.db.get(id, (err, result) => {
         if (err) {
             cb(err);
@@ -31,7 +32,7 @@ couchdb.prototype.findByid = (id, cb) => {
     });
 };
 
-couchdb.prototype.save = (user, cb)=> {
+couchdb.prototype.save = function (doc, cb) {
     this.db.save(user, (err, result) => {
         if (err) callback(err);
         else cb(null, user);

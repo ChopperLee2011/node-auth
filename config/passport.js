@@ -1,11 +1,10 @@
 // load all the things we need
-var LocalStrategy = require('passport-local').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
-var TwitterStrategy = require('passport-twitter').Strategy;
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-var GithubStrategy = require('passport-github').Strategy;
-
-var cradle = require('cradle');
+const LocalStrategy = require('passport-local').Strategy,
+    FacebookStrategy = require('passport-facebook').Strategy,
+    TwitterStrategy = require('passport-twitter').Strategy,
+    GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
+    GithubStrategy = require('passport-github').Strategy,
+    cradle = require('cradle');
 // load up the user model
 var User = require('../app/models/user');
 
@@ -88,14 +87,14 @@ module.exports = function (passport) {
 
                 // if the user is not already logged in:
                 if (!req.user) {
-                    var newUser = new User();
 
-                    newUser.email = email;
-                    newUser.password = password;
-                    newUser.save(newUser,function (err) {
+                    var newUser = new User({
+                        email: email,
+                        password: password
+                    });
+                    newUser.save(newUser, function (err) {
                         if (err)
                             return done(err);
-
                         return done(null, newUser);
                     });
 
@@ -401,7 +400,7 @@ module.exports = function (passport) {
             callbackURL: configAuth.github.callbackURL,
             passReqToCallback: true
         },
-        function(req, accessToken, refreshToken, profile, done) {
+        function (req, accessToken, refreshToken, profile, done) {
             // Set the provider data and include tokens
             var providerData = profile._json;
             providerData.accessToken = accessToken;
