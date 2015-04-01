@@ -47,6 +47,20 @@ User.on('saving', function (user, done) {
         done(res);
     });
 });
+
+User.prototype.findOne = function () {
+    let db = new Couchdb('http://127.0.0.1', 5984, 'auth');
+    db.get('vader', function (err, doc) {
+        console.log(doc);
+    });
+    //this.db.get(id, (err, result) => {
+    //    if (err) {
+    //        cb(err);
+    //    } else {
+    //        cb(null, result);
+    //    }
+    //});
+};
 // define the schema for our user model
 //var userSchema = mongoose.Schema({
 //
