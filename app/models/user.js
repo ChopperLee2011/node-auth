@@ -1,20 +1,18 @@
 // load the things we need
-var cradle = require('cradle'),
-    modella = require('modella'),
+const modella = require('modella'),
     validators = require('modella-validators'),
-    bcrypt = require('bcrypt-nodejs');
-var Couchdb = require('../couchdb');
-var routes = require('../routes');
+    bcrypt = require('bcrypt-nodejs'),
+    modellaCouch = require('../../utils/modella-couch/lib/index'),
+    CouchDB = require('../../utils/modella-couch/lib/couchdb');
 
 var User = modella('User');
 User.use(validators);
 
-User.attr('_id')
-    .attr('username')
+User.attr('username')
     .attr('displayName')
     .attr('provider')
-    .attr('providerIdentifierField')
-    .attr('providerData')
+    //.attr('providerIdentifierField')
+    //.attr('providerData')
     .attr('email', {require: true, format: 'email'})
     .attr('password', {require: true});
 
@@ -24,43 +22,46 @@ User.attr('_id')
 
 User.attr('_id')
     .attr('_rev');
-//console.log('User', typeof User);
 
-User.on('saving', function (user, done) {
-    //var db = new ( cradle.Connection)('http://127.0.0.1', 5984, {
-    //    auth: { username: 'anna', password: 'secret' },
-    //    cache: true,
-    //    raw: false
-    //}).database('auth');
+const couchdb = new CouchDB('127.0.0.1', 5984, 'test');
+User.use(modellaCouch(couchdb));
 
-    //db.save('_design/user', {
-    //    views: {
-    //        byUsername: {
-    //            map: 'function (doc) { if (doc.email ) { emit(doc.email, null) } }'
-    //        }
-    //    }
-    //});
-    let db = new Couchdb('http://127.0.0.1', 5984, 'auth');
-    db.save(user.attrs, function (err, res) {
-        //    // Handle response
-        if (err) done(err);
-        done(res);
-    });
-});
+//console.info('User',User);
+//User.on('saving', function (user, done) {
+//    //var db = new ( cradle.Connection)('http://127.0.0.1', 5984, {
+//    //    auth: { username: 'anna', password: 'secret' },
+//    //    cache: true,
+//    //    raw: false
+//    //}).database('auth');
+//
+//    //db.save('_design/user', {
+//    //    views: {
+//    //        byUsername: {
+//    //            map: 'function (doc) { if (doc.email ) { emit(doc.email, null) } }'
+//    //        }
+//    //    }
+//    //});
+//    let db = new Couchdb('http://127.0.0.1', 5984, 'auth');
+//    db.save(user.attrs, function (err, res) {
+//        //    // Handle response
+//        if (err) done(err);
+//        done(res);
+//    });
+//});
 
-User.prototype.findOne = function () {
-    let db = new Couchdb('http://127.0.0.1', 5984, 'auth');
-    db.get('vader', function (err, doc) {
-        console.log(doc);
-    });
-    //this.db.get(id, (err, result) => {
-    //    if (err) {
-    //        cb(err);
-    //    } else {
-    //        cb(null, result);
-    //    }
-    //});
-};
+//User.prototype.findOne = function () {
+//    let db = new Couchdb('http://127.0.0.1', 5984, 'auth');
+//    db.get('vader', function (err, doc) {
+//        console.log(doc);
+//    });
+//    //this.db.get(id, (err, result) => {
+//    //    if (err) {
+//    //        cb(err);
+//    //    } else {
+//    //        cb(null, result);
+//    //    }
+//    //});
+//};
 // define the schema for our user model
 //var userSchema = mongoose.Schema({
 //

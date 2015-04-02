@@ -3,12 +3,10 @@ const LocalStrategy = require('passport-local').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
     TwitterStrategy = require('passport-twitter').Strategy,
     GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
-    GithubStrategy = require('passport-github').Strategy,
-    cradle = require('cradle');
+    GithubStrategy = require('passport-github').Strategy;
 // load up the user model
 var User = require('../app/models/user');
 
-var couchdb = require('../app/couchdb');
 
 // load the auth variables
 var configAuth = require('./auth'); // use this one for testing
@@ -24,7 +22,7 @@ module.exports = function (passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function (user, done) {
-        done(null, user.id);
+        done(null, user.primary());
     });
 
     // used to deserialize the user
@@ -49,24 +47,24 @@ module.exports = function (passport) {
 
             // asynchronous
             process.nextTick(function () {
-                console.info('User', User);
-                User.findOne();
+                //console.info('User', User);
                 //User.findOne({'local.email': email}, function (err, user) {
-                //    // if there are any errors, return the error
-                //    if (err)
-                //        return done(err);
-                //
-                //    // if no user is found, return the message
-                //    if (!user)
-                //        return done(null, false, req.flash('loginMessage', 'No user found.'));
-                //
-                //    if (!user.validPassword(password))
-                //        return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.'));
-                //
-                //    // all is well, return user
-                //    else
-                //        return done(null, user);
-                //});
+                User.query('email',{'key' : email},function(err,user){
+                    // if there are any errors, return the error
+                    if (err)
+                        return done(err);
+
+                    // if no user is found, return the message
+                    if (!user)
+                        return done(null, false, req.flash('loginMessage', 'No user found.'));
+                    //TODO: encode password
+                    //if (!user.validPassword(password))
+                    //    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.'));
+
+                    // all is well, return user
+                    else
+                        return done(null, user);
+                });
             });
 
         }));
@@ -92,14 +90,14 @@ module.exports = function (passport) {
 
                     var newUser = new User({
                         email: email,
-                        password: password
+                        password: password,
+                        provider: 'local'
                     });
-                    newUser.save(newUser, function (err) {
+                    newUser.save(function (err) {
                         if (err)
                             return done(err);
                         return done(null, newUser);
                     });
-
                     //User.findOne({'local.email': email}, function (err, user) {
                     //    // if there are any errors, return the error
                     //    if (err)
